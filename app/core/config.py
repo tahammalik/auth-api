@@ -1,13 +1,45 @@
-"""
-This file for handle config like different secret key, url
-and secret information
-"""
-from fastapi.security import OAuth2PasswordBearer
-# secret key for create strong hash password
-PASSWORD_SECRET_KEY = 'cafb54f2e09a3d50c39344853563deabc8e78434aad5c5bca3911c65796a9735'
-DUMMY_HASH = '$2y$10$fcr1D9TCCYl2PMWr1s.22e1ewt8k3103i3apuGYOOv.votR8.ObuG'
-# secret key for jwt token
-SECRET_KEY = '45c0e3ac424bd777f59359cfb0665d9cd44429151cea6e023ea043989f7c5ab4'
-ALGORITHM = 'HS256'
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl='token')
+
+
+#oauth2_scheme = OAuth2PasswordBearer(tokenUrl='token')
+
+from pydantic_settings import BaseSettings,SettingsConfigDict
+from sqlalchemy import URL
+
+class DatabaseConfig(BaseSettings):
+    # define components for database connection
+    model_config = SettingsConfigDict(
+        env_file='.env',
+        env_file_encoding='utf-8',
+        case_sensitive=False
+    )
+
+    drivername:str
+    username:str
+    password:str
+    host:str
+    port:int
+    database:str
+
+    # build connection with database
+    async def build_connection(self) -> str:
+        return URL.create(
+            drivername=self.drivername,
+            username=self.username,
+            password=self.password,
+            host=self.host,
+            port=self.port,
+            database=self.database
+        )
+
+class SecretConfig(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_file='.key',
+        env_file_encoding='utf-8',
+        case_sensitive=False
+    )
+
+    password_secret_key:str 
+    dummy_hash:str
+    secret_key:str
+    algorithm:str 
 

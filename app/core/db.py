@@ -9,20 +9,24 @@ from typing import Annotated
 from fastapi.params import Depends
 from sqlalchemy import create_engine, URL
 from sqlalchemy.orm import sessionmaker, Session, DeclarativeBase
+from app.core.config import DatabaseConfig
+
+db_config = DatabaseConfig()
 
 conn_url = URL.create(
-    drivername='postgresql',
-    username='taham',
-    password='taham2007@',
-    host='localhost',
-    port=5432,
-    database='userdb'
+    db_config.build_connection()
 )
 
 engine = create_engine(conn_url,
                        pool_size=10,
                        pool_timeout=1800
                        )
+
+try:
+    with engine.connect() as conn:
+        print("pass")
+except Exception as e:
+    print(e)
 
 sessionlocal = sessionmaker(autoflush=False,autocommit=False,bind=engine)
 
@@ -33,9 +37,9 @@ def get_db():
     db = sessionlocal()
     try:
         yield db
-    except Exception:
+    except:
         db.rollback()
-        raise
+        raise Exception()
     
     finally:
         db.close()

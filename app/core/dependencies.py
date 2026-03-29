@@ -17,10 +17,12 @@ from app.schemas.token import UserToken
 from app.core.db import db_dependency
 from fastapi import HTTPException,status
 from typing import Annotated
-from app.core.config import oauth2_scheme,ALGORITHM,SECRET_KEY
+from app.core.config import SecretConfig
 import jwt
 from app.core.exceptions import UserNotFoundError
-
+from fastapi.security import OAuth2PasswordBearer
+secrets = SecretConfig()
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl='token')
 
 # check every request to make sure the valid user
 async def get_current_user(token:Annotated[str,Depends(oauth2_scheme)],db:db_dependency):
@@ -30,7 +32,7 @@ async def get_current_user(token:Annotated[str,Depends(oauth2_scheme)],db:db_dep
       )
     # decode jwt token and extract user information
       try:
-        payload = jwt.decode(token,SECRET_KEY,algorithms=[ALGORITHM])
+        payload = jwt.decode(token,secrets.secret_key,algorithms=secrets.algorithm)
         id = payload.get('sub')
         username = payload.get('username')
         if any( v is None for v in [id,username]):
