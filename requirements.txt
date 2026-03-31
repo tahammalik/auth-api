@@ -6,3 +6,4 @@ psycopg[binary]
 python-multipart
 argon2-cffi
 pyjwt
+pydantic_settings
