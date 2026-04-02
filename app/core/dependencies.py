@@ -21,7 +21,9 @@ from app.core.config import SecretConfig
 import jwt
 from app.core.exceptions import UserNotFoundError
 from fastapi.security import OAuth2PasswordBearer
+
 secrets = SecretConfig()
+
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='token')
 
 # check every request to make sure the valid user
@@ -32,21 +34,21 @@ async def get_current_user(token:Annotated[str,Depends(oauth2_scheme)],db:db_dep
       )
     # decode jwt token and extract user information
       try:
-        payload = jwt.decode(token,secrets.secret_key,algorithms=secrets.algorithm)
+        payload = jwt.decode(token,secrets.secret_key,algorithms=[secrets.algorithm])
         id = payload.get('sub')
-        username = payload.get('username')
-        if any( v is None for v in [id,username]):
+        
+        if id is None:
             raise credentials_exception
         
-        token_data = UserToken(id=int(id),username=username )
+        token_data = UserToken(id=int(id))
       except InvalidTokenError:
           raise credentials_exception
       
       # validate user with data from token
-      user = find_user(token_data.id,token_data.username,db=db)
+      user = find_user(token_data.id,db=db)
       
       if not user:
-          raise UserNotFoundError(message=f"user with id {token_data.id} and\
-                                   username {token_data.username} not found")
+          raise UserNotFoundError(message=f"user not found!")
+      
       return user
 

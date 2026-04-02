@@ -7,7 +7,7 @@ from app.models.user import Users
 from app.core.dependencies import get_current_user
 from app.schemas.user import UserResponse
 from fastapi.middleware.cors import CORSMiddleware
-from app.core.exceptions import UserNotFoundError,EmailAlreadyExistsError
+from app.core.exceptions import UserNotFoundError,EmailAlreadyExistsError,AccountLockedError
 from fastapi.requests import Request
 from fastapi.responses import JSONResponse
 
@@ -24,18 +24,25 @@ app.add_middleware(
 )
 
 @app.exception_handler(UserNotFoundError)    
-async def UserNotFoundError(request: Request,exc:UserNotFoundError):
+async def user_not_found_error(request: Request,exc:UserNotFoundError):
       return JSONResponse(
         status_code=status.HTTP_404_NOT_FOUND,
         content={"message":exc.message}
        )   
 
 @app.exception_handler(EmailAlreadyExistsError)
-async def EmailAlreadyExistsError(request: Request,exc:EmailAlreadyExistsError):
+async def email_already_exist_error(request: Request,exc:EmailAlreadyExistsError):
       return JSONResponse(
         status_code=status.HTTP_400_BAD_REQUEST,
         content={"message":exc.message}
        )
+
+@app.exception_handler(AccountLockedError)
+async def account_locked_error(request: Request,exc:AccountLockedError):
+     return JSONResponse(
+          status_code=status.HTTP_423_LOCKED,
+          content={"message":exc.message}
+     )
 
 app.include_router(auth.router)
 

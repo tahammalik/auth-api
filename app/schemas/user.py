@@ -26,7 +26,7 @@ class UserCreate(BaseModel):
     
         if re.search(r'[@#$%&!-]',v):       # check if username has any special characters
 
-            raise ValueError('username must not have special characters')
+            raise ValueError('username must avoid special characters')
 
         return v
     

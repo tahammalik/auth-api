@@ -21,7 +21,7 @@ class DatabaseConfig(BaseSettings):
     database:str
 
     # build connection with database
-    async def build_connection(self) -> str:
+    def build_connection(self) -> str:
         return URL.create(
             drivername=self.drivername,
             username=self.username,
@@ -42,4 +42,5 @@ class SecretConfig(BaseSettings):
     dummy_hash:str
     secret_key:str
     algorithm:str 
+
 

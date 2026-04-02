@@ -13,11 +13,9 @@ from app.core.config import DatabaseConfig
 
 db_config = DatabaseConfig()
 
-conn_url = URL.create(
-    db_config.build_connection()
-)
 
-engine = create_engine(conn_url,
+
+engine = create_engine(db_config.build_connection(),
                        pool_size=10,
                        pool_timeout=1800
                        )
@@ -39,7 +37,7 @@ def get_db():
         yield db
     except:
         db.rollback()
-        raise Exception()
+        raise 
     
     finally:
         db.close()

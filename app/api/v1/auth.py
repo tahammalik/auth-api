@@ -5,7 +5,7 @@ from fastapi import APIRouter,HTTPException,status
 from fastapi.params import Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from app.schemas.token import Token
-from app.schemas.user import UserCreate, UserResponse, UserLogin
+from app.schemas.user import UserCreate, UserResponse
 from app.core.db import db_dependency
 from app.services.auth_service import find_email, authenticate_user
 from app.models.user import Users
@@ -13,17 +13,20 @@ from app.core.security import hash_password
 from app.core.security import create_access_token
 from typing import Annotated
 from app.core.exceptions import EmailAlreadyExistsError
+from logging import getLogger
 
+logger = getLogger(__name__)
 
 router = APIRouter(
-    prefix='/auth/v1'
+    prefix='/auth/v1',
+    tags=['Authentication']
     )
 
-@router.post('/create_user',response_model=UserResponse)
+@router.post('/create_user',response_model=UserResponse,status_code=status.HTTP_201_CREATED)
 async def create_user(user_data:UserCreate,db:db_dependency):
     email = find_email(user_data.email,db=db)
-    if email:
-       raise EmailAlreadyExistsError()
+    if not email:
+       raise EmailAlreadyExistsError(message='email already exist')
 
     new_user = Users(
                  username=user_data.username,
@@ -33,27 +36,28 @@ async def create_user(user_data:UserCreate,db:db_dependency):
         db.add(new_user)
         db.commit()
         db.refresh(new_user)
+        logger.info(f'user created {new_user.username}')
         return new_user
     
     except Exception as e:
-        db.rollback()
-        print(f"DB ERROR: {e}")
+        
+        logger.error(f"DB ERROR: %s",e)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Database error occurred"
         )
 
 @router.post('/token')
-async def token(from_data:Annotated[OAuth2PasswordRequestForm,Depends()],db:db_dependency):
+async def token(form_data:Annotated[OAuth2PasswordRequestForm,Depends()],db:db_dependency):
 
-    user = authenticate_user(from_data.username,from_data.password,db=db)
+    user = authenticate_user(form_data.username,form_data.password,db=db)
 
     if not user:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-                            detail='wrong user or password')
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                            detail='Incorrect username or password',
+                            headers={"WWW-Authenticate": "Bearer"})
 
-    access_token = create_access_token(data={'sub':str(user.id),
-                                             'username':user.username})
+    access_token = create_access_token(data={'sub':str(user.id)})
 
-    return Token(access_token=access_token,access_token_type='bearer')
+    return Token(access_token=access_token,token_type='bearer')
 
