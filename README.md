@@ -29,11 +29,11 @@
 **Server** | Uvicorn 0.42.0 |
 **Security** | Passlib (via argon2), Python-multipart |
 
-## Installation
-
 # Clone repository
+```bash
 git clone https://github.com/tahammalik/auth-api
 cd auth-api
+```
 
 # Create virtual environment
 python -m venv venv
@@ -43,9 +43,10 @@ source venv/bin/activate  for  Windows: venv\Scripts\activate
 pip install -r requirements.txt
 
 # Setup environment files
+```text
 cp .env.example .env      # Database configuration
 cp .key.example .key      # JWT secrets (keep this secure!)
-
+```
 
 # Start the server
 uvicorn main:app --reload --port 8000
