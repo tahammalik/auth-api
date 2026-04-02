@@ -50,33 +50,30 @@ cp .key.example .key      # JWT secrets (keep this secure!)
 # Start the server
 uvicorn main:app --reload --port 8000
 
-## Project structure 
+## Project Structure
+
+```text
 AUTH-API/
 ├── app/
-│   ├── api/v1/              # API Routes (Version 1)
-│   │   └── auth.py          # Authentication endpoints
-│   │
-│   ├── core/                # Core Configuration
-│   │   ├── config.py        # App configuration & settings
-│   │   ├── db.py            # Database connection
-│   │   ├── dependencies.py  # FastAPI dependencies
-│   │   ├── exceptions.py    # Custom exceptions
-│   │   ├── redis_client.py  # Redis connection
-│   │   └── security.py      # Security utilities (hashing, JWT)
-│   │
-│   ├── models/              # SQLAlchemy Models
-│   │   └── user.py          # User database model
-│   │
-│   ├── schemas/             # Pydantic Schemas
-│   │   ├── token.py         # Token schemas
-│   │   └── user.py          # User schemas
-│   │
-│   ├── services/            # Business Logic
-│   │   ├── auth_service.py  # Authentication logic
-│   │   └── otp_service.py   # OTP generation/verification
-│   │
-│   └── main.py              # FastAPI application entry
-|             
-├── .gitignore               # Git ignore rules
-├── README.md                # This file
-└── requirements.txt         # Python dependencies
+│   ├── api/
+│   │   └── v1/
+│   │       └── auth.py
+│   ├── core/
+│   │   ├── config.py
+│   │   ├── db.py
+│   │   ├── dependencies.py
+│   │   ├── exceptions.py
+│   │   ├── redis_client.py
+│   │   └── security.py
+│   ├── models/
+│   │   └── user.py
+│   ├── schemas/
+│   │   ├── token.py
+│   │   └── user.py
+│   └── services/
+│       ├── auth_service.py
+│       └── otp_service.py
+├── main.py
+├── .gitignore
+├── README.md
+└── requirements.txt
