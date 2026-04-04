@@ -93,7 +93,7 @@ def authenticate_user(username:str,password:str,db:db_dependency):
         reset_failed_attempts_redis(username=username)
 
     except RedisError:
-        print("Failed to reste login attempt")
+        print("Failed to reset login attempt")
 
     return user
         
